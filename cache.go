@@ -10,7 +10,8 @@ type Cache struct {
 func NewCache() Cache {
 	return Cache{
 		values:    map[string]string{},
-		deadlines: map[string]time.Time{}}
+		deadlines: map[string]time.Time{},
+	}
 }
 
 func (c *Cache) Get(key string) (string, bool) {
@@ -18,8 +19,7 @@ func (c *Cache) Get(key string) (string, bool) {
 	if !vOk {
 		return "", false
 	}
-	d, dOk := c.deadlines[key]
-	if dOk {
+	if d, dOk := c.deadlines[key]; dOk {
 		if d.Before(time.Now()) {
 			delete(c.values, key)
 			delete(c.deadlines, key)
@@ -31,14 +31,11 @@ func (c *Cache) Get(key string) (string, bool) {
 
 func (c *Cache) Put(key, value string) {
 	c.values[key] = value
-	_, ok := c.deadlines[key]
-	if ok {
-		delete(c.deadlines, key)
-	}
+	delete(c.deadlines, key)
 }
 
 func (c *Cache) Keys() []string {
-	var keys = make([]string, 0, len(c.values))
+	keys := make([]string, 0, len(c.values))
 	for key := range c.values {
 		keys = append(keys, key)
 	}
